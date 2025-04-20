@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class ZombieAI : MonoBehaviour
 {
     //enum State { WANDERING, STOPPED, SNIFFING, CHASING, WOUNDED, RETREATING }
-    enum State { WANDERING, STOPPED, CHASING}
+    enum State { WANDERING, STOPPED, CHASING, SWINGING}
     //[SerializeField] private GameObject[] locations;
     [SerializeField] private int health = 100;
     
@@ -15,6 +15,13 @@ public class ZombieAI : MonoBehaviour
     private GameObject player;
     //private int currentLocation = 0;
     private State state = State.WANDERING; // Default state, change to sleep later
+
+    private Rigidbody rb;
+
+    //ScriptName attackScript = player.GetComponent<TakeDamage>();
+    public PlayerController playerController;
+    private float attackRate = 1.0f; // Time between swings
+    private float swingTimer = 1.0f; // Timer for swing delay (start at 1 to swing immediately)
 
     void Start()
     {
@@ -38,7 +45,10 @@ public class ZombieAI : MonoBehaviour
         float distance = Vector3.Distance(transform.position, player.transform.position);
 
         // Less than 20?  We can see them.  Go get them~
-        if (distance < 20f) {
+        if (distance < 3f) {
+            StartSwinging();
+        }
+        else if (distance < 20f) {
             StartChasing();//change later
         }
         // else if (distance < 30f) {
@@ -60,34 +70,47 @@ public class ZombieAI : MonoBehaviour
         // Go after them!
         if (state == State.CHASING) {
             UpdateChasing();
+        } else if (state == State.SWINGING) {
+            UpdateSwinging();
         }
     }
-
-    // IEnumerator Sniff()
-    // {
-    //     // Don't have a Sniff animation.  We'll use eat.
-    //     SetState(State.SNIFFING, "Eat");
-    //     // Tell agent to stop walking.
-    //     nav.isStopped = true;
-    //     // Wait 2 seconds.
-    //     yield return new WaitForSeconds(2);
-    //     // How close to player?
-    //     float distance = Vector3.Distance(transform.position, player.transform.position);
-    //     // If close, go after them.  Otherwise, resume wandering.
-    //     if(distance < 25.0f){
-    //         SetState(State.CHASING);
-    //         StartChasing();
-    //     } else {
-    //         StartWandering();
-    //         SetState(State.WANDERING);
-    //         nav.isStopped = false;
-    //     }
-    // }
+    // swing delay
+    private IEnumerator SwingDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+        // Deal damage to player
+        //playerController.TakeDamage(10);
+        //SetState(State.WANDERING, "Combat Idle");
+    }
+    void UpdateSwinging()
+    {
+        //animator.Play("Attack");
+        //float animationLength = 0.5f; // Set this to the length of your attack animation
+        //sleep for half a second then deal damage
+        //yield return new WaitForSeconds(animationLength);
+        //playerController.TakeDamage(10);
+        if (swingTimer >= attackRate) {
+            swingTimer = swingTimer - attackRate; // reset the timer
+            // Deal damage to player
+            playerController.TakeDamage(10);
+        }
+        swingTimer += Time.deltaTime;
+    }
+    void StartSwinging()
+    {
+        if (state is State.SWINGING) return;
+        SetState(State.SWINGING, "Attack");
+        // swing on first contact
+        playerController.TakeDamage(10);
+        //animator.Play("Attack");
+        //float animationLength = 0.5f; // Set this to the length of your attack animation
+        //sleep for half a second then deal damage
+    }
 
     void StartChasing()
     {
         //if (state is State.CHASING or State.WOUNDED or State.RETREATING) return;
-        if (state is State.CHASING) return;
+        if (state is State.CHASING ) return;
         SetState(State.CHASING, "RunForward");
     }
 
@@ -127,10 +150,10 @@ public class ZombieAI : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Bullet"))
-        {
-            health -= 100;
-            //if (health < 300) SetState(State.WOUNDED);
-        }
+        // if (collision.gameObject.CompareTag("Bullet"))
+        // {
+        //     health -= 100;
+        //     //if (health < 300) SetState(State.WOUNDED);
+        // }
     }
 }

@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     public Camera cam;
     public Rigidbody rb;
     public float speed = 20.0f;
+    [SerializeField] private int health = 100;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -21,6 +22,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // check hp to see if we lose
+        if (health <= 0) {
+            // lose
+            Debug.Log("You lose!");
+        }
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         // ^^^ these are -1 to 1 with the WASD keys
@@ -68,6 +74,12 @@ public class PlayerController : MonoBehaviour
 
         rb.MoveRotation(Quaternion.Euler(rotation.y, rotation.x, 0.0f));
         rb.MovePosition(rb.position + (deltaPos * speed * Time.deltaTime));
+    }
+
+    public void TakeDamage(int damage) {
+        health -= damage;
+        Debug.Log("Player took damage: " + damage);
+        Debug.Log("Player health: " + health);
     }
     
 }
