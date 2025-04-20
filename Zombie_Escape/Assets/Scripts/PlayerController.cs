@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour
     public GameObject player;
     public float sensitivity = 10.0f;
     Vector2 rotation = Vector2.zero;
+    Vector2 deltaRot = Vector2.zero;
+    public Camera cam;
+    public Rigidbody rb;
     public float speed = 20.0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -20,6 +23,8 @@ public class PlayerController : MonoBehaviour
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
+        // ^^^ these are -1 to 1 with the WASD keys
+        
         // if(Input.GetKey(KeyCode.Q)){
         //     //tr.Rotate(0.0f, -1.0f, 0.0f, Space.Self);
         //     tr.Rotate(new Vector3(0.0f, -1.0f, 0.0f) * Time.deltaTime * 100.0f, Space.Self);
@@ -30,23 +35,39 @@ public class PlayerController : MonoBehaviour
         // }
         
         // mouse input
+        // deltaRot.x = Input.GetAxis("Mouse X") * sensitivity;
+        // deltaRot.y = Input.GetAxis("Mouse Y") * sensitivity;
         rotation.x += Input.GetAxis("Mouse X") * sensitivity;
         rotation.y -= Input.GetAxis("Mouse Y") * sensitivity;
+        //rotation.x += deltaRot.x;
+        //rotation.y -= deltaRot.y;
         // clamp vertical rotation
         rotation.y = Mathf.Clamp(rotation.y, -90.0f, 90.0f);
 
         // position only moves horizontally
-        Vector3 deltaPos = new Vector3(h, 0.0f, v);
+        //Vector3 deltaPos = new Vector3();
+        //Vector3 deltaPos = new Vector3(tr.forward.x, 0.0f, tr.forward.z);
+
+        //normalized movement vector
+        // movement vector moves at same rate in all directions horizontally
+        Vector3 deltaPos = Quaternion.Euler(0.0f, rotation.x, 0.0f) * new Vector3(h, 0.0f, v);
+        //Vector3 deltaPos = tr.rotation.y*new Vector3(h, 0.0f, v);
+        // move forward/backward at same rate no matter vertical angle
         
-        // Combine rotation and position updates for optimization
+            //deltaPos.y = 0.0f; // no vertical movement
+        //new position
+
         // tr.SetPositionAndRotation(
-        //     tr.position + (tr.forward * (0.1f * v * Time.deltaTime * 100.0f)) + (tr.right * (0.1f * h * Time.deltaTime * 100.0f)),
+        //     tr.position + (deltaPos * speed * Time.deltaTime),
         //     Quaternion.Euler(rotation.y, rotation.x, 0.0f)
         // );
-        tr.SetPositionAndRotation(
-            tr.position + deltaPos * speed * Time.deltaTime,
-            Quaternion.Euler(rotation.y, rotation.x, 0.0f)
-        );
+        
+        //Vector3 rot = new Vector3(rotation.y, rotation.x, 0.0f);
+        //Vector3 rot = new Vector3(-deltaRot.y, deltaRot.x, 0.0f);
+        //tr.Rotate(rot);
+
+        rb.MoveRotation(Quaternion.Euler(rotation.y, rotation.x, 0.0f));
+        rb.MovePosition(rb.position + (deltaPos * speed * Time.deltaTime));
     }
     
 }
