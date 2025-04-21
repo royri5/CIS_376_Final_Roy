@@ -1,11 +1,15 @@
 // Reference: https://www.reddit.com/r/Unity3D/comments/8k7w7v/unity_simple_mouselook/
 // Reference: https://discussions.unity.com/t/how-do-i-move-a-camera-with-mouse/194032/2
 // Reference: https://www.youtube.com/watch?v=f473C43s8nE
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    //public Slider healthBar;
+    public Text endText;
     [Header("Player Movement")]
     public float speed = 2.0f;
 
@@ -31,7 +35,8 @@ public class PlayerController : MonoBehaviour
 
     private int score = 0;
     private int maxScore = 10;
-    [SerializeField] private int health = 100;
+    //[SerializeField] private int health = 100;
+    public int health = 100;
 
     private float rateOfFire = 0.5f;
     private float timeToFire = 0.5f;
@@ -58,6 +63,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("You win!");
             Time.timeScale = 0.0f;
             endMenu.SetActive(true);
+            // change text of panel's sub object textto "You win!"
+            endText.text = "You win!";
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             running = false;
@@ -69,6 +76,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("You lose!");
             Time.timeScale = 0.0f;
             endMenu.SetActive(true);
+            // change text of panel's sub object textto "You lose!"
+            endText.text = "You lose!";
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             running = false;
