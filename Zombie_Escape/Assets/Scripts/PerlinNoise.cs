@@ -1,6 +1,11 @@
+// Author: Richard Roy
+// Date: April 21, 2025
+// Source: CIS 376 PerlinTerrain.cs
+// Description: Generates terrain using Perlin noise.
+//              Also ensures the terrain is navigable
+//              and has a texture, normal map and material.
 using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class PerlinNoise : MonoBehaviour
 {
@@ -13,36 +18,30 @@ public class PerlinNoise : MonoBehaviour
     private MeshRenderer meshRenderer;
     private Mesh mesh;
     private MeshCollider meshCollider;
+    // navmesh for AI
     private NavMeshSurface navMesh;
-    //public Material mat;
+    // texture, normal map and material
     public Texture2D texture;
-    // normal map
     public Texture2D normalMap;
     public Material mat;
 
-
     void Start()
     {
+        // create mesh filter, renderer, collider and navmesh
         meshFilter = gameObject.AddComponent<MeshFilter>();
-        meshFilter.mesh = new Mesh();
-        mesh = meshFilter.mesh;
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
         meshCollider = gameObject.AddComponent<MeshCollider>();
-        meshCollider.sharedMesh = mesh;
         navMesh = gameObject.AddComponent<NavMeshSurface>();
-        //meshRenderer.material = new Material(Shader.Find("Standard"));
-        //meshRenderer.material = mat;
-        //meshRenderer.material = texture;
+        // create mesh and assign material
+        meshFilter.mesh = new Mesh();
+        mesh = meshFilter.mesh;
+        meshCollider.sharedMesh = mesh;
         meshRenderer.material = mat;
-        //meshRenderer.material.mainTexture = normalMap;
         meshRenderer.material.mainTexture = texture;
-        
-        //meshRenderer.material.SetTexture("_Bump", normalMap);
-        //meshRenderer.material.mainTexture = texture;
-        //meshRenderer.material.shader = 
         GenerateTerrain();
     }
 
+    // Generate terrain using Perlin noise
     void GenerateTerrain()
     {
         Vector3[] vertices = new Vector3[(width + 1) * (depth + 1)];
@@ -50,6 +49,7 @@ public class PerlinNoise : MonoBehaviour
         Vector2[] uvs = new Vector2[vertices.Length];
         Color[] colors = new Color[vertices.Length];
 
+        // not utilized
         Gradient gradient = new Gradient();
         gradient.SetKeys(
             new GradientColorKey[] {
@@ -105,17 +105,16 @@ public class PerlinNoise : MonoBehaviour
                 triangles[tris++] = vertexIndex + width + 2;
             }
         }
-
         // Apply to mesh
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uvs;
         mesh.colors = colors;
+        // Ensure the collider is updated
         GetComponent<MeshCollider>().sharedMesh = mesh;
         // bake nav mesh
         navMesh.BuildNavMesh();
         // Apply to mesh
-
         mesh.RecalculateNormals();
     }
 }
