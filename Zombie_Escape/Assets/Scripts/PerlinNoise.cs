@@ -7,13 +7,17 @@ public class PerlinNoise : MonoBehaviour
     public int width = 100;
     public int depth = 100;
     public float scale = 10f;
-    public float heightMultiplier = 10f;
+    public float heightMultiplier = 2.5f;
     
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh mesh;
     private MeshCollider meshCollider;
     private NavMeshSurface navMesh;
+    //public Material mat;
+    public Texture2D texture;
+    // normal map
+    public Texture2D normalMap;
     public Material mat;
 
 
@@ -27,7 +31,15 @@ public class PerlinNoise : MonoBehaviour
         meshCollider.sharedMesh = mesh;
         navMesh = gameObject.AddComponent<NavMeshSurface>();
         //meshRenderer.material = new Material(Shader.Find("Standard"));
+        //meshRenderer.material = mat;
+        //meshRenderer.material = texture;
         meshRenderer.material = mat;
+        //meshRenderer.material.mainTexture = normalMap;
+        meshRenderer.material.mainTexture = texture;
+        
+        //meshRenderer.material.SetTexture("_Bump", normalMap);
+        //meshRenderer.material.mainTexture = texture;
+        //meshRenderer.material.shader = 
         GenerateTerrain();
     }
 
@@ -103,7 +115,7 @@ public class PerlinNoise : MonoBehaviour
         // bake nav mesh
         navMesh.BuildNavMesh();
         // Apply to mesh
-        
+
         mesh.RecalculateNormals();
     }
 }

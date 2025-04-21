@@ -11,9 +11,9 @@ public class PlayerController : MonoBehaviour
     //public Slider healthBar;
     public Text endText;
     [Header("Player Movement")]
-    public float speed = 2.0f;
+    public float speed = 5.0f;
 
-    public float groundDrag;
+    public float groundDrag = 5.0f;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -33,8 +33,8 @@ public class PlayerController : MonoBehaviour
     private bool running = true;
     
 
-    private int score = 0;
-    private int maxScore = 10;
+    public int score = 0;
+    public int maxScore = 10;
     //[SerializeField] private int health = 100;
     public int health = 100;
 

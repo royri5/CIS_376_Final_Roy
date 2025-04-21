@@ -12,12 +12,14 @@ public class ZombieAI : MonoBehaviour
     
     private NavMeshAgent nav;
     private Animator animator;
+    private bool primaryAttack = true;
     //private GameObject player;
     private GameObject player;
     //private int currentLocation = 0;
     private State state = State.WANDERING; // Default state, change to sleep later
 
     private Rigidbody rb;
+    private CapsuleCollider hitbox;
 
     //ScriptName attackScript = player.GetComponent<TakeDamage>();
     public PlayerController playerController;
@@ -34,6 +36,8 @@ public class ZombieAI : MonoBehaviour
     {
         nav = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        hitbox = GetComponent<CapsuleCollider>();
         player = GameObject.Find("Player");// OBJECT NAME TO LOOK FOR, REQ name for player
         playerController = player.GetComponent<PlayerController>();
         // Targets our bear will walk between.
@@ -51,9 +55,6 @@ public class ZombieAI : MonoBehaviour
     {
         // zombie is dead
         if (health <= 0) {
-            // lose
-            // death logic
-            // set state
             StartDying();
             return;
         }
@@ -92,24 +93,19 @@ public class ZombieAI : MonoBehaviour
             UpdateWandering();
         }
     }
-    // swing delay
-    // private IEnumerator SwingDelay()
-    // {
-    //     yield return new WaitForSeconds(0.5f);
-    //     // Deal damage to player
-    //     //playerController.TakeDamage(10);
-    //     //SetState(State.WANDERING, "Combat Idle");
-    // }
+
     void UpdateSwinging()
     {
-        
-        //float animationLength = 0.792f; // Set this to the length of your attack animation
-        //sleep for half a second then deal damage
-        //yield return new WaitForSeconds(animationLength);
-        //playerController.TakeDamage(10);
         if (swingTimer >= attackRate) {
             swingTimer = swingTimer - attackRate; // reset the timer
-            animator.Play("Attack1");
+            //animator.Play("Attack1");
+            if (primaryAttack) {
+                animator.Play("Attack1");
+                primaryAttack = false;
+            } else {
+                animator.Play("Attack2");
+                primaryAttack = true;
+            }
             //Debug.Log("Swinging");
             // wait for correct part of animation
             // Deal damage to player
@@ -149,7 +145,7 @@ public class ZombieAI : MonoBehaviour
     void StartWandering()
     {
         SetState(State.WANDERING, "Combat Idle");
-        nav.speed = 1.5f;
+        nav.speed = 0f;
         animator.Play("Idle");
         //animator.SetBool("WalkFWD", true);
         //nav.SetDestination(locations[currentLocation].transform.position);
@@ -157,6 +153,9 @@ public class ZombieAI : MonoBehaviour
     void StartDying()
     {
         if (state is State.DYING) return;
+        nav.speed = 0f;
+        //disable hitbox
+        hitbox.enabled = false;
         playerController.IncrementScore();
         SetState(State.DYING, "Death");
         animator.Play("Death");
@@ -177,7 +176,7 @@ public class ZombieAI : MonoBehaviour
         animator.Play("WalkFastFWD");
         nav.isStopped = false;
         nav.SetDestination(player.transform.position);
-        nav.speed = 3.5f;
+        nav.speed = 5f;
     }
 
     // void StartRetreating()
